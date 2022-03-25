@@ -27,6 +27,6 @@ export function createClient(config: PrismicContext) {
     req: config.req,
   })
 
-  console.log(client)
+  // console.log(client)
   return client
 }

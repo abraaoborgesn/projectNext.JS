@@ -1,10 +1,21 @@
 import Head from 'next/head'
 import { createClient } from '../../services/prismic'
+import { RichText } from 'prismic-dom'
 
 import styles from './styles.module.scss'
 
+type Post = {
+    slug: string,
+    title: string,
+    excerpt: string,
+    updatedAt: string
+}
 
-export default function Posts() {
+interface PostsProps {
+    posts: Post[]
+}
+
+export default function Posts({ posts }: PostsProps) {
     return (
         <>
             <Head>
@@ -13,26 +24,15 @@ export default function Posts() {
 
             <main className={styles.container}>
                 <div className={styles.posts}>
-                    <a href='#'>
-                        <time>12 de março de 2021</time>
-                        <strong>Creating a Monorego with Lerna & Yarn Workspaces</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis blanditiis est unde iure consectetur! Molestias qui, inventore nesciunt provident eos iure quam autem labore doloribus, soluta nostrum ad necessitatibus neque.</p>
-                    </a>
-                    <a href='#'>
-                        <time>12 de março de 2021</time>
-                        <strong>Creating a Monorego with Lerna & Yarn Workspaces</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis blanditiis est unde iure consectetur! Molestias qui, inventore nesciunt provident eos iure quam autem labore doloribus, soluta nostrum ad necessitatibus neque.</p>
-                    </a>
-                    <a href='#'>
-                        <time>12 de março de 2021</time>
-                        <strong>Creating a Monorego with Lerna & Yarn Workspaces</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis blanditiis est unde iure consectetur! Molestias qui, inventore nesciunt provident eos iure quam autem labore doloribus, soluta nostrum ad necessitatibus neque.</p>
-                    </a>
-                    <a href='#'>
-                        <time>12 de março de 2021</time>
-                        <strong>Creating a Monorego with Lerna & Yarn Workspaces</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis blanditiis est unde iure consectetur! Molestias qui, inventore nesciunt provident eos iure quam autem labore doloribus, soluta nostrum ad necessitatibus neque.</p>
-                    </a>
+                    {posts.map(post => (
+                        <a key={post.slug} href='#'>
+                            <time>{post.updatedAt}</time>
+                            <strong>{post.title}</strong>
+                            <p>{post.excerpt}</p>
+                        </a>
+                    ))}
+
+
 
                 </div>
             </main>
@@ -48,11 +48,25 @@ export async function getStaticProps({ previewData }) {
         pageSize: 100
     })
 
+    // console.log(response)
     console.log(JSON.stringify(response, null, 2))
 
-    
+    const posts = response.map(post => {
+        return {
+            slug: post.uid,
+            title: RichText.asText(post.data.title),
+            excerpt: post.data.content.find(content => content.type === "paragraph")?.text ?? '',
+            updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            })
+        }
+    })
+
+
     return {
-        props: {}, // Will be passed to the page component as props
+        props: { posts }, // Will be passed to the page component as props
     }
 }
 
