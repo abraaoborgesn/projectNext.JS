@@ -18,6 +18,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'POST') {
         const session = await getSession({ req }) // pegar a sessão do usuário no lado do backend. Já que não dá de usar o useSession, pois só da pra usar lá no react, não no API routes, aqui.
 
+        // console.log(session)
+
         const user = await fauna.query<User>(  // pegando o usuário de acordo com o email do fauna que seja igual ao email do auth do github
             q.Get(  // pegar email do fauna
                 q.Match(    // que dê "match"
